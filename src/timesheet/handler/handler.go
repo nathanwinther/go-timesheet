@@ -50,6 +50,7 @@ func New() (*Handler, error) {
         &Rule{fmt.Sprintf("GET:/timesheet/u/%s/update", user.USERNAME_PATTERN),
             nil, h.handleUserUpdate},
         &Rule{"GET:/timesheet/verify/[A-Fa-f0-9][A-Fa-f0-9-]*", nil, h.handleVerify},
+        &Rule{"POST:/timesheet/forgot", nil, h.handleForgotPost},
         &Rule{"POST:/timesheet/new", nil, h.handleNewPost},
         &Rule{"POST:/timesheet/u", nil, h.handleLoginPost},
         &Rule{fmt.Sprintf("POST:/timesheet/u/%s/password", user.USERNAME_PATTERN),
@@ -127,6 +128,50 @@ func (h *Handler) handleClientNew(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) handleForgot(w http.ResponseWriter, r *http.Request) {
     m := map[string] interface{} {
         "baseurl": config.Get("baseurl"),
+    }
+
+    h.Templates.ExecuteTemplate(w, "forgot.html", m)
+}
+
+func (h *Handler) handleForgotPost(w http.ResponseWriter, r *http.Request) {
+    username := strings.TrimSpace(r.FormValue("username"))
+
+    // Validate
+    v := validation.New()
+    v.Required("username", username, "username is required")
+
+    if len(v.Errors) == 0 {
+        u, err := user.Find(username)
+        if err != nil {
+            logger.Error(w, err)
+            h.serveServerError(w, r)
+            return
+        }
+        err = user.SendVerify(u.Id, u.Email, false)
+        if err != nil {
+            logger.Error(w, err)
+            h.serveServerError(w, r)
+            return
+        }
+
+        msg := `
+            Password reset link sent
+        `
+
+        flashdata.Set(w, msg)
+
+        url := fmt.Sprintf("%s/message", config.Get("baseurl"))
+        http.Redirect(w, r, url, http.StatusFound)
+
+        return
+    }
+
+    m := map[string] interface{} {
+        "baseurl": config.Get("baseurl"),
+        "form": map[string] string {
+            "username": username,
+        },
+        "errors": v.Errors,
     }
 
     h.Templates.ExecuteTemplate(w, "forgot.html", m)
