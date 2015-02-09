@@ -65,64 +65,45 @@ func Add(username string, email string, password string) error {
         return err
     }
 
-    // Add verify
-    vkey, err := uuid4.New()
-    if err != nil {
-        return err
-    }
+    return SendVerify(uid, email, true)
+}
 
-    q = `
-        INSERT INTO user_verify
-        VALUES(
-            NULL
-            , ?
-            , ?
-            , ?
-            , ?
-            , ?
-        );
+func Find(username string) (*User, error) {
+    u := new(User)
+
+    q := `
+        SELECT
+            u.id
+            , u.key
+            , u.active
+            , u.username
+            , u.email
+            , u.fullname
+        FROM user u
+        WHERE u.active = 1
+        AND (
+            u.username = ?
+            OR u.email = ?
+        )
     `
 
-    params = []interface{} {
-        vkey,
-        uid,
-        time.Now().Unix() + VERIFY_OFFSET,
-        time.Now().Unix(),
-        time.Now().Unix(),
+    params := []interface{} {
+        username,
+        username,
     }
 
-    _, err = dao.Exec(q, params)
-    if err != nil {
-        return err
+    bind := []interface{} {
+        &u.Id,
+        &u.Key,
+        &u.Active,
+        &u.Username,
+        &u.Email,
+        &u.Fullname,
     }
 
-    // Send verify email
-    url := fmt.Sprintf("%s/verify/%s", config.Get("baseurl"), vkey)
+    err := dao.Row(q, params, bind)
 
-    loadTemplates()
-
-    html := new(bytes.Buffer)
-    Templates.ExecuteTemplate(html, "activate.html", url)
-
-    text := new(bytes.Buffer)
-    Templates.ExecuteTemplate(text, "activate.txt", url)
-
-    m := awsses.New(
-        config.Get("awsses_sender"),
-        email,
-        "Timesheet - Please active your account",
-        html.String(),
-        text.String())
-
-    err = m.Send(
-        config.Get("awsses_baseurl"),
-        config.Get("awsses_accesskey"),
-        config.Get("awsses_secretkey"))
-    if err != nil {
-        return err
-    }
-
-    return nil
+    return u, err
 }
 
 func Load(ukey string) (*User, error) {
@@ -229,6 +210,69 @@ func Login(username string, password string) (*User, error) {
     err := dao.Row(q, params, bind)
 
     return u, err
+}
+
+func SendVerify(uid int64, email string, activate bool) error {
+    // Add verify
+    vkey, err := uuid4.New()
+    if err != nil {
+        return err
+    }
+
+    q := `
+        INSERT INTO user_verify
+        VALUES(
+            NULL
+            , ?
+            , ?
+            , ?
+            , ?
+            , ?
+        );
+    `
+
+    params := []interface{} {
+        vkey,
+        uid,
+        time.Now().Unix() + VERIFY_OFFSET,
+        time.Now().Unix(),
+        time.Now().Unix(),
+    }
+
+    _, err = dao.Exec(q, params)
+    if err != nil {
+        return err
+    }
+
+    // Send verify email
+    url := fmt.Sprintf("%s/verify/%s", config.Get("baseurl"), vkey)
+
+    loadTemplates()
+
+    tpl := "reset"
+    subject := "Timesheet - Password reset"
+    if activate {
+        tpl = "activate"
+        subject = "Timesheet - Please active your account"
+    }
+
+    html := new(bytes.Buffer)
+    Templates.ExecuteTemplate(html, fmt.Sprintf("%s.html", tpl), url)
+
+    text := new(bytes.Buffer)
+    Templates.ExecuteTemplate(text, fmt.Sprintf("%s.text", tpl), url)
+
+    m := awsses.New(
+        config.Get("awsses_sender"),
+        email,
+        subject,
+        html.String(),
+        text.String())
+
+    return m.Send(
+        config.Get("awsses_baseurl"),
+        config.Get("awsses_accesskey"),
+        config.Get("awsses_secretkey"))
 }
 
 func Verify(vkey string) (*User, error) {
