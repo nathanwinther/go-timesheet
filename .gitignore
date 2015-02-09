@@ -1,0 +1,7 @@
+bin/
+data/**
+pkg/
+src/bitbucket.org/**
+src/github.com/**
+pid
+.DS_Store

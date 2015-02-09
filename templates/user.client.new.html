@@ -1,0 +1,52 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{{.session.User.Username}} - Timesheet</title>
+{{template "block.head.html" .}}
+</head>
+<body>
+
+<div id="chrome" class="user">
+
+    {{template "block.user.toolbar.html" .}}
+
+    <h1>{{.session.User.Username}}</h1>
+
+    {{if .errors._success}}
+    <h2 class="success">{{.errors._success}}</h2>
+    {{end}}
+
+    <form class="standard client" method="POST" name="client">
+        <h2>Add a new client</h2>
+        <h3>Client Infomation</h3>
+        <p>
+            <input class="standard{{if .errors.name}} error{{end}}" id="client-name" maxlength="256" name="name" placeholder="client name" required="required" type="text" value="{{.form.name}}">
+            {{if .errors.client}}<span class="error">{{.errors.client}}</span>{{end}}
+        </p>
+        <p>
+            <input class="standard{{if .errors.description}} error{{end}}" id="client-description" maxlength="256" name="description" placeholder="description of work" required="required" type="text" value="{{.form.description}}">
+            {{if .errors.description}}<span class="error">{{.errors.description}}</span>{{end}}
+        </p>
+        <p>
+            <textarea class="standard" id="client-address" name="address" placeholder="client infomation"></textarea>
+        </p>
+        <h3>Invoice Infomation</h3>
+        <p>
+            <input class="standard{{if .errors.startdate}} error{{end}}" id="client-startdate" maxlength="256" name="startdate" placeholder="start date [yyyy-mm-dd]" required="required" type="text" value="{{.form.invoice_startdate}}">
+            {{if .errors.startdate}}<span class="error">{{.errors.startdate}}</span>{{end}}
+        </p>
+        <p>
+            <input class="standard{{if .errors.days}} error{{end}}" id="client-days" maxlength="256" name="days" placeholder="days [number]" required="required" type="text" value="{{.form.invoice_days}}">
+            {{if .errors.days}}<span class="error">{{.errors.days}}</span>{{end}}
+        </p>
+        <p>
+            <button class="standard" id="client-submit" type="submit">Add</button>
+        </p>
+    </form>
+
+</div>
+
+</body>
+</html>
+

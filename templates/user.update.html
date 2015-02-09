@@ -1,0 +1,39 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{{.user.Username}} - Timesheet</title>
+{{template "block.head.html" .}}
+</head>
+<body>
+
+<div id="chrome" class="user">
+
+    {{template "block.user.toolbar.html" .}}
+
+    <h1>{{.session.User.Username}}</h1>
+
+    {{if .message}}
+    <h2 class="message">{{.message}}</h2>
+    {{end}}
+
+    <form class="standard update" method="POST" name="update">
+        <h2>Update Profile</h2>
+        <p>
+            <input class="standard{{if .errors.email}} error{{end}}" id="update-email" maxlength="256" name="email" placeholder="email" required="required" type="email" value="{{.form.email}}">
+            {{if .errors.email}}<span class="error">{{.errors.email}}</span>{{end}}
+        </p>
+        <p>
+            <input class="standard{{if .errors.fullname}} error{{end}}" id="update-fullname" maxlength="256" name="fullname" placeholder="fullname" required="required" type="text" value="{{.form.fullname}}">
+            {{if .errors.fullname}}<span class="error">{{.errors.fullname}}</span>{{end}}
+        </p>
+        <p>
+            <button class="standard" id="update-submit" type="submit">Update</button>
+        </p>
+    </form>
+
+</div>
+
+</body>
+</html>
+

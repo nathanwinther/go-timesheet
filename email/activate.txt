@@ -1,0 +1,5 @@
+Welcome to Timesheet
+
+You must verify your email address to begin using your account
+
+{{.}}

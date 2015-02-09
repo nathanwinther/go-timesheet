@@ -1,0 +1,37 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{{.user.Username}} - Timesheet</title>
+{{template "block.head.html" .}}
+</head>
+<body>
+
+<div id="chrome" class="user">
+
+    {{template "block.user.toolbar.html" .}}
+
+    <h1>{{.user.Username}}</h1>
+
+    <h2>Clients</h2>
+    {{if .owner}}
+    <p>
+        <a href="{{.baseurl}}/u/{{.session.User.Username}}/client/new">Add a new client</a>
+    </p>
+    {{end}}
+
+    {{if .owner}}
+    <h2>Edit Profile</h2>
+    <p>
+        <a href="{{.baseurl}}/u/{{.session.User.Username}}/update">Update profile</a>
+    </p>
+    <p>
+        <a href="{{.baseurl}}/u/{{.session.User.Username}}/password">Update password</a>
+    </p>
+    {{end}}
+
+</div>
+
+</body>
+</html>
+

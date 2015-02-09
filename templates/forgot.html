@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Forgot Password - Timesheet</title>
+{{template "block.head.html" .}}
+</head>
+<body>
+
+<div id="chrome">
+
+    <h1 class="banner">Timesheet</h1>
+
+<form class="login standard" method="POST" name="login">
+    <p>
+        <input class="standard" id="login-username" maxlength="256" name="username" placeholder="username or email" required="required" type="text" value="{{.form.username}}">
+        {{if .errors.username}}<span class="error">{{.errors.username}}</span>{{end}}
+    </p>
+    <p>
+        <button class="standard" id="login-submit" type="submit">Send reset password email</button>
+    </p>
+
+</form>
+
+</div>
+
+</body>
+</html>
+

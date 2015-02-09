@@ -1,0 +1,179 @@
+*, *:before, *:after {
+    -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+}
+
+html, body {
+    background-color: #fff;
+    color: #000;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 62.5%;
+    line-height: 1;
+}
+
+#chrome {
+    font-family: 'Roboto Slab', serif;
+    font-weight: 400;
+    margin: 0 auto;
+    padding: 0;
+    width: 300px;
+}
+
+#chrome.user {
+    padding-top: 4.0rem;
+}
+
+#toolbar {
+    background-color: #dfdfdf;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+#toolbar .contents {
+    margin: 0 auto;
+    padding: 0;
+    width: 300px;
+}
+
+#toolbar .contents .button {
+    border-right: solid 1px #ccc;
+    display: inline-block;
+    width: 75px;
+}
+
+#toolbar .contents .button.home,
+#toolbar .contents .button.login
+{
+    border-left: solid 1px #ccc;
+}
+
+#toolbar .contents .button a {
+    color: #000;
+    display: block;
+    font-size: 1.4rem;
+    line-height: 2.0rem;
+    margin: 0;
+    padding: 1.0rem 0;
+    text-align: center;
+    text-decoration: none;
+}
+
+#toolbar .contents .button a:hover {
+    color: #666;
+}
+
+a {
+    color: #369;
+}
+
+button.standard {
+    -moz-appearance: none; -webkit-appearance: none; appearance: none;
+    background-color: #369;
+    border: none 0;
+    color: #fff;
+    font-family: 'Roboto Slab', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 2.0rem;
+    margin: 0;
+    padding: 0.9rem 0 0.7rem;
+    text-align: center;
+    width: 300px;
+}
+
+form.standard {
+    border: none 0;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+form.standard h3 {
+    text-align: left;
+}
+
+textarea.standard {
+    -moz-appearance: none; -webkit-appearance: none; appearance: none;
+    background-color: #fff;
+    color: #000;
+    border: solid 1px #ccc;
+    font-family: 'Roboto Slab', serif;
+    font-size: 1.6rem;
+    font-weight: 400;
+    height: 10.0rem;
+    line-height: 2.0rem;
+    margin: 0;
+    padding: 0.7rem;
+    width: 300px;
+}
+
+input.standard {
+    -moz-appearance: none; -webkit-appearance: none; appearance: none;
+    background-color: #fff;
+    color: #000;
+    border: solid 1px #ccc;
+    font-family: 'Roboto Slab', serif;
+    font-size: 1.6rem;
+    font-weight: 400;
+    line-height: 2.0rem;
+    margin: 0;
+    padding: 0.8rem 0.7rem 0.5rem;
+    width: 300px;
+}
+
+input.standard.error {
+    border-color: #f00;
+}
+
+h1 {
+    font-size: 2.4rem;
+    font-weight: 700;
+    line-height: 4.0rem;
+    margin: 1.6rem 0;
+    padding: 0;
+}
+
+h1.banner {
+    text-align: center;
+}
+
+h2 {
+    font-size: 2.0rem;
+    font-weight: 700;
+    line-height: 2.0rem;
+    margin: 1.6rem 0;
+    padding: 0;
+}
+
+h2.message {
+    border: solid 1px #20b2aa;
+    background-color: #e0ffff;
+    color: #20b2aa;
+    font-weight: 400;
+    padding: 2.0rem;
+}
+
+h3 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 2.0rem;
+    margin: 1.6rem 0 0.4rem;
+    padding: 0;
+}
+
+p {
+    font-size: 1.6rem;
+    line-height: 2.0rem;
+    margin: 0 0 1.6rem;
+    padding: 0;
+}
+
+.error {
+    color: #f00;
+}
+
