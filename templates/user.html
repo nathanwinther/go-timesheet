@@ -13,6 +13,10 @@
 
     <h1>{{.user.Username}}</h1>
 
+    {{if .message}}
+    <h2 class="message">{{.message}}</h2>
+    {{end}}
+
     <h2>Clients</h2>
     {{if .owner}}
     <p>
