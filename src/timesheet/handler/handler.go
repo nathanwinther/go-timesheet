@@ -43,9 +43,9 @@ func New() (*Handler, error) {
         &Rule{"GET:/timesheet/u", nil, h.handleLogin},
         &Rule{fmt.Sprintf("GET:/timesheet/u/%s", user.USERNAME_PATTERN),
             nil, h.handleUser},
-        &Rule{fmt.Sprintf("GET:/timesheet/u/%s/client/new", 
+        &Rule{fmt.Sprintf("GET:/timesheet/u/%s/client/new",
             user.USERNAME_PATTERN), nil, h.handleClientNew},
-        &Rule{fmt.Sprintf("GET:/timesheet/u/%s/password", 
+        &Rule{fmt.Sprintf("GET:/timesheet/u/%s/password",
             user.USERNAME_PATTERN), nil, h.handleUserPassword},
         &Rule{fmt.Sprintf("GET:/timesheet/u/%s/update", user.USERNAME_PATTERN),
             nil, h.handleUserUpdate},
@@ -100,13 +100,13 @@ func (h *Handler) handleClientNew(w http.ResponseWriter, r *http.Request) {
 
     s, err := session.Parse(r)
     if err != nil {
-        http.Redirect(w, r, fmt.Sprintf("%s/u/%s", 
+        http.Redirect(w, r, fmt.Sprintf("%s/u/%s",
             config.Get("baseurl"), username), http.StatusFound)
         return
     }
 
     if s.User.Username != username {
-        http.Redirect(w, r, fmt.Sprintf("%s/u/%s", 
+        http.Redirect(w, r, fmt.Sprintf("%s/u/%s",
             config.Get("baseurl"), username), http.StatusFound)
         return
     }
@@ -340,9 +340,12 @@ func (h *Handler) handleUser(w http.ResponseWriter, r *http.Request) {
         }
     }
 
+    msg, _ := flashdata.Get(w, r)
+
     m := map[string] interface{} {
         "baseurl": config.Get("baseurl"),
         "session": s,
+        "message": msg,
         "user": u,
         "owner": owner,
     }
@@ -356,13 +359,13 @@ func (h *Handler) handleUserPassword(w http.ResponseWriter, r *http.Request) {
 
     s, err := session.Parse(r)
     if err != nil {
-        http.Redirect(w, r, fmt.Sprintf("%s/u/%s", 
+        http.Redirect(w, r, fmt.Sprintf("%s/u/%s",
             config.Get("baseurl"), username), http.StatusFound)
         return
     }
 
     if s.User.Username != username {
-        http.Redirect(w, r, fmt.Sprintf("%s/u/%s", 
+        http.Redirect(w, r, fmt.Sprintf("%s/u/%s",
             config.Get("baseurl"), username), http.StatusFound)
         return
     }
@@ -384,13 +387,13 @@ func (h *Handler) handleUserPasswordPost(w http.ResponseWriter, r *http.Request)
 
     s, err := session.Parse(r)
     if err != nil {
-        http.Redirect(w, r, fmt.Sprintf("%s/u/%s", 
+        http.Redirect(w, r, fmt.Sprintf("%s/u/%s",
             config.Get("baseurl"), username), http.StatusFound)
         return
     }
 
     if s.User.Username != username {
-        http.Redirect(w, r, fmt.Sprintf("%s/u/%s", 
+        http.Redirect(w, r, fmt.Sprintf("%s/u/%s",
             config.Get("baseurl"), username), http.StatusFound)
         return
     }
@@ -416,7 +419,7 @@ func (h *Handler) handleUserPasswordPost(w http.ResponseWriter, r *http.Request)
                     return
                 }
                 flashdata.Set(w, "Password updated")
-                http.Redirect(w, r, fmt.Sprintf("%s/u/%s/password", 
+                http.Redirect(w, r, fmt.Sprintf("%s/u/%s",
                     config.Get("baseurl"), s.User.Username), http.StatusFound)
                 return
             } else {
@@ -442,13 +445,13 @@ func (h *Handler) handleUserUpdate(w http.ResponseWriter, r *http.Request) {
 
     s, err := session.Parse(r)
     if err != nil {
-        http.Redirect(w, r, fmt.Sprintf("%s/u/%s", 
+        http.Redirect(w, r, fmt.Sprintf("%s/u/%s",
             config.Get("baseurl"), username), http.StatusFound)
         return
     }
 
     if s.User.Username != username {
-        http.Redirect(w, r, fmt.Sprintf("%s/u/%s", 
+        http.Redirect(w, r, fmt.Sprintf("%s/u/%s",
             config.Get("baseurl"), username), http.StatusFound)
         return
     }
@@ -474,13 +477,13 @@ func (h *Handler) handleUserUpdatePost(w http.ResponseWriter, r *http.Request) {
 
     s, err := session.Parse(r)
     if err != nil {
-        http.Redirect(w, r, fmt.Sprintf("%s/u/%s", 
+        http.Redirect(w, r, fmt.Sprintf("%s/u/%s",
             config.Get("baseurl"), username), http.StatusFound)
         return
     }
 
     if s.User.Username != username {
-        http.Redirect(w, r, fmt.Sprintf("%s/u/%s", 
+        http.Redirect(w, r, fmt.Sprintf("%s/u/%s",
             config.Get("baseurl"), username), http.StatusFound)
         return
     }
@@ -502,8 +505,8 @@ func (h *Handler) handleUserUpdatePost(w http.ResponseWriter, r *http.Request) {
             return
         }
         flashdata.Set(w, "Profile updated")
-        http.Redirect(w, r, fmt.Sprintf("%s/u/%s/update", 
-            config.Get("baseurl"), s.User.Username), http.StatusFound)
+        http.Redirect(w, r, fmt.Sprintf("%s/u/%s", config.Get("baseurl"),
+            s.User.Username), http.StatusFound)
         return
     }
 
