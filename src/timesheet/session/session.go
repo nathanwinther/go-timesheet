@@ -47,7 +47,12 @@ func New(u *user.User) (*Session, error) {
         time.Now().Unix(),
     }
 
-    sid, err := dao.Exec(q, params)
+    result, err := dao.Exec(q, params)
+    if err != nil {
+        return nil, err
+    }
+
+    sid, err := result.LastInsertId()
     if err != nil {
         return nil, err
     }
