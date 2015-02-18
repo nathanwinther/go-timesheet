@@ -122,7 +122,7 @@ func (h *Handler) handleClientNew(w http.ResponseWriter, r *http.Request) {
     }
 
     fmt.Println("OK")
-    h.Templates.ExecuteTemplate(w, "user.client.new.html", m)
+    h.Templates.ExecuteTemplate(w, "user_new_client.html", m)
 }
 
 func (h *Handler) handleForgot(w http.ResponseWriter, r *http.Request) {
@@ -239,7 +239,7 @@ func (h *Handler) handleLoginPost(w http.ResponseWriter, r *http.Request) {
             http.Redirect(w, r, url, http.StatusFound)
             return
         } else {
-            if err.Error() == "User not found" {
+            if err.Error() == "sql: no rows in result set" {
                 v.Errors["username"] = "invalid username or password"
             }
         }
@@ -423,7 +423,7 @@ func (h *Handler) handleUserPassword(w http.ResponseWriter, r *http.Request) {
         "message": msg,
     }
 
-    h.Templates.ExecuteTemplate(w, "user.password.html", m)
+    h.Templates.ExecuteTemplate(w, "user_update_password.html", m)
 }
 
 func (h *Handler) handleUserPasswordPost(w http.ResponseWriter, r *http.Request) {
@@ -443,36 +443,23 @@ func (h *Handler) handleUserPasswordPost(w http.ResponseWriter, r *http.Request)
         return
     }
 
-    currentPassword := strings.TrimSpace(r.FormValue("current_password"))
-    newPassword := strings.TrimSpace(r.FormValue("new_password"))
-    confirmPassword := strings.TrimSpace(r.FormValue("confirm_password"))
+    password := strings.TrimSpace(r.FormValue("password"))
 
     // Validate
     v := validation.New()
-    v.Required("current_password", currentPassword, "current password is required")
-    v.Required("new_password", newPassword, "new password is required")
-    v.Required("confirm_password", confirmPassword, "confirm password is required")
+    v.Required("password", password, "new password is required")
 
     if len(v.Errors) == 0 {
-        if newPassword == confirmPassword {
-            _, err := user.Login(s.User.Username, currentPassword)
-            if err == nil {
-                err := s.User.Password(newPassword)
-                if err != nil {
-                    logger.Error(w, err)
-                    h.serveServerError(w, r)
-                    return
-                }
-                flashdata.Set(w, "Password updated")
-                http.Redirect(w, r, fmt.Sprintf("%s/u/%s",
-                    config.Get("baseurl"), s.User.Username), http.StatusFound)
-                return
-            } else {
-                v.Errors["current_password"] = "invalid password"
-            }
-        } else {
-            v.Errors["new_password"] = "passwords do not match"
+        err := s.User.UpdatePassword(password)
+        if err != nil {
+            logger.Error(w, err)
+            h.serveServerError(w, r)
+            return
         }
+        flashdata.Set(w, "Password updated")
+        http.Redirect(w, r, fmt.Sprintf("%s/u/%s",
+            config.Get("baseurl"), s.User.Username), http.StatusFound)
+        return
     }
 
     m := map[string] interface{} {
@@ -481,7 +468,7 @@ func (h *Handler) handleUserPasswordPost(w http.ResponseWriter, r *http.Request)
         "errors": v.Errors,
     }
 
-    h.Templates.ExecuteTemplate(w, "user.password.html", m)
+    h.Templates.ExecuteTemplate(w, "user_update_password.html", m)
 }
 
 func (h *Handler) handleUserUpdate(w http.ResponseWriter, r *http.Request) {
@@ -513,7 +500,7 @@ func (h *Handler) handleUserUpdate(w http.ResponseWriter, r *http.Request) {
         },
     }
 
-    h.Templates.ExecuteTemplate(w, "user.update.html", m)
+    h.Templates.ExecuteTemplate(w, "user_update.html", m)
 }
 
 func (h *Handler) handleUserUpdatePost(w http.ResponseWriter, r *http.Request) {
@@ -565,7 +552,7 @@ func (h *Handler) handleUserUpdatePost(w http.ResponseWriter, r *http.Request) {
         "errors": v.Errors,
     }
 
-    h.Templates.ExecuteTemplate(w, "user.update.html", m)
+    h.Templates.ExecuteTemplate(w, "user_update.html", m)
 }
 
 func (h *Handler) handleVerify(w http.ResponseWriter, r *http.Request) {

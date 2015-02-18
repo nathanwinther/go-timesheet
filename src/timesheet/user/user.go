@@ -60,7 +60,12 @@ func Add(username string, email string, password string) error {
         time.Now().Unix(),
     }
 
-    uid, err := dao.Exec(q, params)
+    result, err := dao.Exec(q, params)
+    if err != nil {
+        return err
+    }
+
+    uid, err := result.LastInsertId()
     if err != nil {
         return err
     }
@@ -260,7 +265,7 @@ func SendVerify(uid int64, email string, activate bool) error {
     Templates.ExecuteTemplate(html, fmt.Sprintf("%s.html", tpl), url)
 
     text := new(bytes.Buffer)
-    Templates.ExecuteTemplate(text, fmt.Sprintf("%s.text", tpl), url)
+    Templates.ExecuteTemplate(text, fmt.Sprintf("%s.txt", tpl), url)
 
     m := awsses.New(
         config.Get("awsses_sender"),
@@ -346,25 +351,6 @@ func Verify(vkey string) (*User, error) {
     return u, nil
 }
 
-func (u *User) Password(password string) error {
-    q := `
-        UPDATE user SET
-            password = ?
-            , modified_date = ?
-        WHERE id = ?;
-    `
-
-    params := []interface{} {
-        hashpassword(password),
-        time.Now().Unix(),
-        u.Id,
-    }
-
-    _, err := dao.Exec(q, params)
-
-    return err
-}
-
 func (u *User) Update(email string, fullname string) error {
     q := `
         UPDATE user SET
@@ -377,6 +363,25 @@ func (u *User) Update(email string, fullname string) error {
     params := []interface{} {
         email,
         fullname,
+        time.Now().Unix(),
+        u.Id,
+    }
+
+    _, err := dao.Exec(q, params)
+
+    return err
+}
+
+func (u *User) UpdatePassword(password string) error {
+    q := `
+        UPDATE user SET
+            password = ?
+            , modified_date = ?
+        WHERE id = ?;
+    `
+
+    params := []interface{} {
+        hashpassword(password),
         time.Now().Unix(),
         u.Id,
     }

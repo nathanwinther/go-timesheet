@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <title>{{.user.Username}} - Timesheet</title>
-{{template "block.head.html" .}}
+{{template "head.inc" .}}
 </head>
 <body>
 
 <div id="chrome" class="user">
 
-    {{template "block.user.toolbar.html" .}}
+    {{template "toolbar.inc" .}}
 
     <h1>{{.user.Username}}</h1>
 

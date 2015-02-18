@@ -6,27 +6,20 @@ import (
     "timesheet/config"
 )
 
-func Exec(q string, params []interface{}) (int64, error) {
+func Exec(q string, params []interface{}) (sql.Result, error) {
     db, err := sql.Open("sqlite3", config.Get("dbf"))
     if err != nil {
-        return 0, err
+        return nil, err
     }
     defer db.Close()
 
     stmt, err := db.Prepare(q)
     if err != nil {
-        return 0, err
+        return nil, err
     }
     defer stmt.Close()
 
-    result, err := stmt.Exec(params...)
-    if err != nil {
-        return 0, err
-    }
-
-    lastInsertId, _ := result.LastInsertId()
-
-    return lastInsertId, nil
+    return stmt.Exec(params...)
 }
 
 func Row(q string, params []interface{}, bind []interface{}) error {
