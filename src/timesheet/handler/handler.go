@@ -121,7 +121,6 @@ func (h *Handler) handleClientNew(w http.ResponseWriter, r *http.Request) {
         },
     }
 
-    fmt.Println("OK")
     h.Templates.ExecuteTemplate(w, "user_new_client.html", m)
 }
 
