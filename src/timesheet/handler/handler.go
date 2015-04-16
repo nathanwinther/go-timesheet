@@ -6,10 +6,13 @@ import(
     "net/http"
     "path/filepath"
     "regexp"
+    "strconv"
     "strings"
     "github.com/nathanwinther/go-uuid4"
+    "timesheet/client"
     "timesheet/config"
     "timesheet/flashdata"
+    "timesheet/invoice"
     "timesheet/logger"
     "timesheet/session"
     "timesheet/user"
@@ -53,6 +56,8 @@ func New() (*Handler, error) {
         &Rule{"POST:/timesheet/forgot", nil, h.handleForgotPost},
         &Rule{"POST:/timesheet/new", nil, h.handleNewPost},
         &Rule{"POST:/timesheet/u", nil, h.handleLoginPost},
+        &Rule{fmt.Sprintf("POST:/timesheet/u/%s/client/new",
+            user.USERNAME_PATTERN), nil, h.handleClientNewPost},
         &Rule{fmt.Sprintf("POST:/timesheet/u/%s/password", user.USERNAME_PATTERN),
             nil, h.handleUserPasswordPost},
         &Rule{fmt.Sprintf("POST:/timesheet/u/%s/update", user.USERNAME_PATTERN),
@@ -115,9 +120,86 @@ func (h *Handler) handleClientNew(w http.ResponseWriter, r *http.Request) {
     m := map[string] interface{} {
         "baseurl": config.Get("baseurl"),
         "session": s,
+    }
+
+    h.Templates.ExecuteTemplate(w, "user_new_client.html", m)
+}
+
+func (h *Handler) handleClientNewPost(w http.ResponseWriter, r *http.Request) {
+    segments := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+    username := segments[2]
+
+    s, err := session.Parse(r)
+    if err != nil {
+        http.Redirect(w, r, fmt.Sprintf("%s/u/%s",
+            config.Get("baseurl"), username), http.StatusFound)
+        return
+    }
+
+    if s.User.Username != username {
+        http.Redirect(w, r, fmt.Sprintf("%s/u/%s",
+            config.Get("baseurl"), username), http.StatusFound)
+        return
+    }
+
+    name := strings.TrimSpace(r.FormValue("name"))
+    description := strings.TrimSpace(r.FormValue("description"))
+    clientAddress := strings.TrimSpace(r.FormValue("client_address"))
+    clientContact := strings.TrimSpace(r.FormValue("client_contact"))
+    invoiceStartdate := strings.TrimSpace(r.FormValue("invoice_startdate"))
+    invoiceDays := strings.TrimSpace(r.FormValue("invoice_days"))
+    invoiceRate := strings.TrimSpace(r.FormValue("invoice_rate"))
+    companyAddress := strings.TrimSpace(r.FormValue("company_address"))
+    companyContact := strings.TrimSpace(r.FormValue("company_contact"))
+
+    // Validate
+    v := validation.New()
+    v.Require("name", name, "client name is required")
+    v.Require("description", description, "description is required")
+    if v.Require("invoice_startdate", invoiceStartdate, "start date is required") {
+        v.Date("invoice_startdate", invoiceStartdate, "invalid date format [yyyy-mm-dd]")
+    }
+    if v.Require("invoice_days", invoiceDays, "days is required") {
+        v.Positive("invoice_days", invoiceDays, "days must be a number")
+    }
+
+    if len(v.Errors) == 0 {
+        days, _ := strconv.ParseInt(invoiceDays, 10, 32)
+        rate, _ := strconv.ParseFloat(invoiceRate, 64)
+        v, _ := invoice.New(invoiceStartdate, int(days), rate)
+
+        c := new(client.Client)
+        c.UserId = s.User.Id
+        c.Name = name
+        c.Description = description
+        c.Client = &client.Company{clientAddress, clientContact}
+        c.Company = &client.Company{companyAddress, companyContact}
+        c.Invoice = v
+        c.Fields = map[string] string {}
+
+        err = c.Save()
+        if err != nil {
+            logger.Error(w, err)
+            h.serveServerError(w, r)
+            return
+        }
+
+        return
+    }
+
+    m := map[string] interface{} {
+        "baseurl": config.Get("baseurl"),
+        "session": s,
         "form": map[string] string {
-            "email": s.User.Email,
-            "fullname": s.User.Fullname,
+            "name": name,
+            "description": description,
+            "client_address": clientAddress,
+            "client_contact": clientContact,
+            "invoice_startdate": invoiceStartdate,
+            "invoice_days": invoiceDays,
+            "invoice_rate": invoiceRate,
+            "company_address": companyAddress,
+            "company_contact": companyContact,
         },
     }
 
@@ -137,7 +219,7 @@ func (h *Handler) handleForgotPost(w http.ResponseWriter, r *http.Request) {
 
     // Validate
     v := validation.New()
-    v.Required("username", username, "username is required")
+    v.Require("username", username, "username is required")
 
     if len(v.Errors) == 0 {
         u, err := user.Find(username)
@@ -214,8 +296,8 @@ func (h *Handler) handleLoginPost(w http.ResponseWriter, r *http.Request) {
 
     // Validate
     v := validation.New()
-    v.Required("username", username, "username is required")
-    v.Required("password", password, "password is required")
+    v.Require("username", username, "username is required")
+    v.Require("password", password, "password is required")
 
     if len(v.Errors) == 0 {
         u, err := user.Login(username, password)
@@ -296,13 +378,13 @@ func (h *Handler) handleNewPost(w http.ResponseWriter, r *http.Request) {
 
     // Validate
     v := validation.New()
-    if v.Required("username", username, "username is required") {
+    if v.Require("username", username, "username is required") {
         v.Username("username", username, "invalid username")
     }
-    if v.Required("email", email, "email is required") {
+    if v.Require("email", email, "email is required") {
         v.Email("email", email, "invalid email")
     }
-    v.Required("password", password, "password is required")
+    v.Require("password", password, "password is required")
 
     if len(v.Errors) == 0 {
         err := user.Add(username, email, password)
@@ -446,7 +528,7 @@ func (h *Handler) handleUserPasswordPost(w http.ResponseWriter, r *http.Request)
 
     // Validate
     v := validation.New()
-    v.Required("password", password, "new password is required")
+    v.Require("password", password, "new password is required")
 
     if len(v.Errors) == 0 {
         err := s.User.UpdatePassword(password)
@@ -524,7 +606,7 @@ func (h *Handler) handleUserUpdatePost(w http.ResponseWriter, r *http.Request) {
 
     // Validate
     v := validation.New()
-    if v.Required("email", email, "email is required") {
+    if v.Require("email", email, "email is required") {
         v.Email("email", email, "invalid email")
     }
 

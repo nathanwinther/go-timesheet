@@ -24,21 +24,23 @@ type Entry struct {
 }
 
 type Invoice struct {
-    StartDate int
+    Rate float64
     Days int
+    StartDate int
     EndDate int
     Selected int
     Entries []Entry
     Total int
 }
 
-func New(startdate string, days int) (*Invoice, error) {
+func New(startdate string, days int, rate float64) (*Invoice, error) {
     t, err := time.Parse("2006-01-02", startdate)
     if err != nil {
         return nil, err
     }
 
     v := new(Invoice)
+    v.Rate = rate
     v.Days = days
     v.EndDate = days - 1
     v.Entries = make([]Entry, days)

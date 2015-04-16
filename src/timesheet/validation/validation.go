@@ -3,6 +3,8 @@ package validation
 import (
     "fmt"
     "regexp"
+    "strconv"
+    "time"
     "timesheet/user"
 )
 
@@ -22,8 +24,18 @@ func New() *Validation {
     }
 }
 
-func (v *Validation) Required(key string, val string, msg string) bool {
-    if val != "" {
+func (v *Validation) Date(key string, val string, msg string) bool {
+    _, err := time.Parse("2006-01-02", val)
+    if err != nil {
+        v.Errors[key] = msg
+        return false
+    }
+
+    return true
+}
+
+func (v *Validation) Email(key string, val string, msg string) bool {
+    if v.reEmail.Match([]byte(val)) {
         return true
     }
 
@@ -31,8 +43,38 @@ func (v *Validation) Required(key string, val string, msg string) bool {
     return false
 }
 
-func (v *Validation) Email(key string, val string, msg string) bool {
-    if v.reEmail.Match([]byte(val)) {
+func (v *Validation) Money(key string, val string, msg string) bool {
+    f, err := strconv.ParseFloat(val, 64)
+    if err != nil {
+        v.Errors[key] = msg
+        return false
+    }
+
+    if f <= 0 {
+        v.Errors[key] = msg
+        return false
+    }
+
+    return true
+}
+
+func (v *Validation) Positive(key string, val string, msg string) bool {
+    i, err := strconv.ParseInt(val, 10, 64)
+    if err != nil {
+        v.Errors[key] = msg
+        return false
+    }
+
+    if i <= 0 {
+        v.Errors[key] = msg
+        return false
+    }
+
+    return true
+}
+
+func (v *Validation) Require(key string, val string, msg string) bool {
+    if val != "" {
         return true
     }
 

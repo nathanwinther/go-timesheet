@@ -26,18 +26,18 @@
         <h2>Add a new client</h2>
         <h3>Client Infomation</h3>
         <p>
-            <input class="standard{{if .errors.client_name}} error{{end}}" id="client-client_name" maxlength="256" name="client_name" placeholder="client name" required="required" type="text" value="{{.form.client_name}}">
-            {{if .errors.client_name}}<span class="error">{{.errors.client_name}}</span>{{end}}
+            <input class="standard{{if .errors.name}} error{{end}}" id="client-name" maxlength="256" name="name" placeholder="client name" required="required" type="text" value="{{.form.name}}">
+            {{if .errors.name}}<span class="error">{{.errors.name}}</span>{{end}}
         </p>
         <p>
-            <input class="standard{{if .errors.client_description}} error{{end}}" id="client-client_description" maxlength="256" name="client_description" placeholder="description of work" required="required" type="text" value="{{.form.client_description}}">
-            {{if .errors.client_description}}<span class="error">{{.errors.client_description}}</span>{{end}}
-        </p>
-        <p>
-            <textarea class="standard" id="client-client_contact" name="client_contact" placeholder="client contact">{{.form.client_contact}}</textarea>
+            <input class="standard{{if .errors.description}} error{{end}}" id="client-description" maxlength="256" name="description" placeholder="description of work" required="required" type="text" value="{{.form.description}}">
+            {{if .errors.description}}<span class="error">{{.errors.description}}</span>{{end}}
         </p>
         <p>
             <textarea class="standard" id="client-client_address" name="client_address" placeholder="client address">{{.form.client_address}}</textarea>
+        </p>
+        <p>
+            <textarea class="standard" id="client-client_contact" name="client_contact" placeholder="client contact">{{.form.client_contact}}</textarea>
         </p>
         <h3>Invoice Infomation</h3>
         <p>
@@ -52,11 +52,12 @@
             <input class="standard{{if .errors.invoice_rate}} error{{end}}" id="client-invoice_rate" maxlength="256" name="invoice_rate" placeholder="rate [0.00]" type="text" value="{{.form.invoice_rate}}">
             {{if .errors.invoice_rate}}<span class="error">{{.errors.invoice_rate}}</span>{{end}}
         </p>
+        <h3>Company Infomation</h3>
         <p>
-            <textarea class="standard" id="client-invoice_contact" name="invoice_contact" placeholder="invoice contact">{{.form.invoice_contact}}</textarea>
+            <textarea class="standard" id="client-company_address" name="company_address" placeholder="invoice address">{{.form.company_address}}</textarea>
         </p>
         <p>
-            <textarea class="standard" id="client-invoice_address" name="invoice_address" placeholder="invoice address">{{.form.invoice_address}}</textarea>
+            <textarea class="standard" id="client-company_contact" name="company_contact" placeholder="invoice contact">{{.form.company_contact}}</textarea>
         </p>
         <p>
             <button class="standard" id="client-submit" type="submit">Add</button>

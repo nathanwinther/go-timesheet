@@ -7,5 +7,4 @@ go get -u github.com/nathanwinther/go-awsses
 go get -u github.com/nathanwinther/go-uuid4
 
 go install timesheet
-go install scratch
 
